@@ -2,23 +2,7 @@
 	"name": "Flutter (Future-Proofed)",
 	"dockerFile": "Dockerfile",
 
-	// Configure container settings
-	"settings": {
-		// Set Zsh as the default integrated shell
-		"terminal.integrated.shell.linux": "/bin/zsh",
-        // Help VS Code find the Flutter SDK path inside container
-		"dart.flutterSdkPath": "/home/vscode/flutter"
-	},
-
-	// VS Code extensions to install inside the container
-	"extensions": [
-		"dart-code.dart-code",          // Dart language support
-		"dart-code.flutter",            // Flutter specific features
-        "googlecloudtools.cloudcode",   // Firebase/GCP integration
-        "supabase.supabase"             // Supabase official extension
-	],
-
-    // Ports to forward from container to host (uncomment/adjust as needed)
+	// Ports to forward from container to host (uncomment/adjust as needed)
     "forwardPorts": [
         // 54323, // Default Supabase Studio port
         // Common Flutter web dev ports can be added if known
@@ -30,9 +14,29 @@
     // "onAutoForwardPort": "openBrowser",
 
 	// Ensure VS Code connects as the non-root user 'vscode'
-	"remoteUser": "vscode",
+	"remoteUser": "vscode", // Removed trailing comma here
 
-    // --- postCreateCommand REMOVED ---
+	// Add customizations for VS Code
+	"customizations": {
+		"vscode": {
+			// Configure container settings
+			"settings": {
+				// Set Zsh as the default integrated shell
+				"terminal.integrated.shell.linux": "/bin/zsh",
+				// Help VS Code find the Flutter SDK path inside container
+				"dart.flutterSdkPath": "/home/vscode/flutter"
+			},
+			// VS Code extensions to install inside the container
+			"extensions": [
+				"dart-code.dart-code",          // Dart language support
+				"dart-code.flutter",            // Flutter specific features
+				"googlecloudtools.cloudcode",   // Firebase/GCP integration
+				"supabase.supabase"             // Supabase official extension
+			]
+		}
+	}
+
+	// --- postCreateCommand REMOVED ---
 
     // Optional: Run commands after container is created (e.g., final checks)
     // "postStartCommand": "flutter doctor -v"
