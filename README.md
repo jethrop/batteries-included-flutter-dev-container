@@ -2,7 +2,7 @@
 
 ## Summary
 
-*Develop Flutter based applications. Includes the Flutter SDK (latest stable), Android SDK (Platform 34), JDK 17, Zsh, Firebase CLI, Supabase CLI, scrcpy, Git LFS, Linux Desktop dependencies, and needed VS Code extensions.*
+*Develop Flutter based applications. Includes the Flutter SDK (latest stable), Android SDK (Platform 35), JDK 21, Zsh, Firebase CLI, Supabase CLI, scrcpy, Git LFS, Linux Desktop dependencies, and needed VS Code extensions.*
 
 This definition provides a comprehensive environment for Flutter development, aiming for maintainability by using latest stable versions where feasible.
 
@@ -45,7 +45,7 @@ This definition does not require any special steps to use beyond the standard De
 This container comes pre-configured with:
 
 *   **Flutter SDK:** Latest commit from the `stable` channel (cloned via `git`).
-*   **Android SDK:** Platform `35`, Build Tools `35.0.0`, latest `cmdline-tools` (>=12.0), `platform-tools` (>=35.0.2), and `emulator` (>=34.2.0).
+*   **Android SDK:** Platform `35`, Build Tools `35.0.0`, latest available `cmdline-tools`, `platform-tools`, and `emulator`.
 *   **Java Development Kit:** OpenJDK `21` (LTS).
 *   **Firebase CLI:** Latest version (installed via official script).
 *   **Supabase CLI:** Latest version (installed via Homebrew).
@@ -70,8 +70,8 @@ The goal is to stay reasonably up-to-date with minimal manual intervention.
 *   **Manual Review Recommended Periodically:**
     *   **`.devcontainer/Dockerfile`:**
         *   `FROM ubuntu:24.04`: Consider updating the base image LTS version (e.g., to `26.04`) every ~2 years for newer system libraries and security updates.
-        *   `openjdk-21-jdk-headless`: Update the JDK LTS version if required by future Android or Flutter versions.
-        *   `ENV ANDROID_PLATFORM_VERSION=35`: Update the target Android platform version based on your project needs or new Android releases. The `ANDROID_BUILD_TOOLS_VERSION` will update automatically based on this.
+        *   `openjdk-21-jdk-headless`: Update the JDK LTS version (currently 21) if required by future Android or Flutter versions.
+        *   `ENV ANDROID_PLATFORM_VERSION=35`: Update the target Android platform version (currently 35) based on your project needs or new Android releases. The `ANDROID_BUILD_TOOLS_VERSION` will update automatically based on this.
 
 ## Verifying the Setup
 

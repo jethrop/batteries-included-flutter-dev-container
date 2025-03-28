@@ -84,7 +84,8 @@ export PATH=$FLUTTER_HOME/bin:$PATH\n\
 
 # --- Install latest Supabase CLI via Homebrew (as user) ---
 # Needs to run after Homebrew PATH is configured for the user shell
-RUN sudo -u $USERNAME /home/linuxbrew/.linuxbrew/bin/brew install supabase/tap/supabase
+# Run directly as the current user ($USERNAME) since USER directive is already set
+RUN /home/linuxbrew/.linuxbrew/bin/brew install supabase/tap/supabase
 
 # Phase 4: SDK Installations (as User)
 # --- Android SDK Configuration ---
