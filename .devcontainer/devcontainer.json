@@ -1,21 +1,39 @@
-// For format details, see https://aka.ms/vscode-remote/devcontainer.json or this file's README at:
-// https://github.com/lucashilles/flutter-dev-container
 {
-	"name": "Flutter",
+	"name": "Flutter (Future-Proofed)",
 	"dockerFile": "Dockerfile",
-	// Set *default* container specific settings.json values on container create.
+
+	// Configure container settings
 	"settings": {
-		"terminal.integrated.shell.linux": "/bin/bash",
+		// Set Zsh as the default integrated shell
+		"terminal.integrated.shell.linux": "/bin/zsh",
+        // Help VS Code find the Flutter SDK path inside container
+		"dart.flutterSdkPath": "/home/vscode/flutter"
 	},
-	// Add the IDs of extensions you want installed when the container is created.
+
+	// VS Code extensions to install inside the container
 	"extensions": [
-		"dart-code.dart-code",
-		"dart-code.flutter"
+		"dart-code.dart-code",          // Dart language support
+		"dart-code.flutter",            // Flutter specific features
+        "googlecloudtools.cloudcode",   // Firebase/GCP integration
+        "supabase.supabase"             // Supabase official extension
 	],
-	// This command create an example project after the container is created.
-	"postCreateCommand": "flutter create test_project",
-	// Use 'forwardPorts' to make a list of ports inside the container available locally.
-	//"forwardPorts": [],
-	// Uncomment to connect as a non-root user. See https://aka.ms/vscode-remote/containers/non-root.
-	// "remoteUser": "vscode"
+
+    // Ports to forward from container to host (uncomment/adjust as needed)
+    "forwardPorts": [
+        // 54323, // Default Supabase Studio port
+        // Common Flutter web dev ports can be added if known
+    ],
+    // Optional: Open forwarded ports in browser automatically
+    // "portsAttributes": {
+    //     "54323": { "label": "Supabase Studio" }
+    // },
+    // "onAutoForwardPort": "openBrowser",
+
+	// Ensure VS Code connects as the non-root user 'vscode'
+	"remoteUser": "vscode",
+
+    // --- postCreateCommand REMOVED ---
+
+    // Optional: Run commands after container is created (e.g., final checks)
+    // "postStartCommand": "flutter doctor -v"
 }

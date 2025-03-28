@@ -1,131 +1,173 @@
-# Flutter
+# Flutter (Future-Proofed Dev Container)
 
 ## Summary
 
-*Develop Flutter based applications. Includes the Flutter SDK, needed extensions, and dependencies.*
+*Develop Flutter based applications. Includes the Flutter SDK (latest stable), Android SDK (Platform 34), JDK 17, Zsh, Firebase CLI, Supabase CLI, scrcpy, Git LFS, Linux Desktop dependencies, and needed VS Code extensions.*
 
-This definition is configured by default to work with Flutter Web development, but it includes all the tooling needed for android development, you only have to do some basic configuration at your host OS.
+This definition provides a comprehensive environment for Flutter development, aiming for maintainability by using latest stable versions where feasible.
 
-| Metadata | Value |  
+| Metadata | Value |
 |----------|-------|
-| *Contributors* | Lucas |
+| *Contributors* | Lucas Hilleshein dos Santos, Cline |
 | *Definition type* | Dockerfile |
 | *Works in Codespaces* | Not tested |
-| *Container host OS support* | Windows |
+| *Container host OS support* | Windows (using WSL2), macOS, Linux |
 | *Languages, platforms* | Dart, Flutter |
 
 ### Topics
-- [Using this definition with an existing folder](#Using-this-definition-with-an-existing-folder)
-- [Testing the definition](#Testing-the-definition)
-- [Container settings](#Container-settings)
-- [Android development](#Android-development)
+- [Flutter (Future-Proofed Dev Container)](#flutter-future-proofed-dev-container)
+  - [Summary](#summary)
+    - [Topics](#topics)
+  - [Using this definition with an existing folder](#using-this-definition-with-an-existing-folder)
+  - [Key Features \& Included Tooling](#key-features--included-tooling)
+  - [Maintainability \& Updates](#maintainability--updates)
+  - [Verifying the Setup](#verifying-the-setup)
+  - [Android Development](#android-development)
+    - [Physical Devices (All Host OS - Windows/Mac/Linux)](#physical-devices-all-host-os---windowsmaclinux)
+    - [Connecting to Host Emulator (Windows/Mac/Linux Host)](#connecting-to-host-emulator-windowsmaclinux-host)
+  - [Shell \& Aliases](#shell--aliases)
+  - [License](#license)
 
 
 ## Using this definition with an existing folder
 
-This definition does not require any special steps to use. Just follow these steps:
+This definition does not require any special steps to use beyond the standard Dev Container setup.
 
-1. If this is your first time using a development container, please follow the [getting started steps](https://aka.ms/vscode-remote/containers/getting-started) to set up your machine.
+1. If this is your first time using a development container, please follow the [getting started steps](https://aka.ms/vscode-remote/containers/getting-started) to set up your machine (Docker Desktop, VS Code, Remote-Containers extension).
+2. Clone this repository or your fork locally.
+3. Ensure you have a project folder where you want to use this definition.
+4. Copy the `.devcontainer` folder from this repository into the root of your project folder.
+5. Open your project folder in VS Code.
+6. VS Code should prompt you to "Reopen in Container". Click it. (Alternatively, press <kbd>F1</kbd> and run **Remote-Containers: Reopen Folder in Container**).
 
-2. To use latest-and-greatest copy of this definition from the repository:
-   1. Clone this repository.
-   2. Copy the contents of `flutter-dev-container/.devcontainer` to the root of your project folder.
-   3. Start VS Code and open your project folder.
+## Key Features & Included Tooling
 
-4. After following last step, the contents of the `.devcontainer` folder in your project can be adapted to meet your needs.
+This container comes pre-configured with:
 
-5. Finally, press <kbd>F1</kbd> and run **Remote-Containers: Reopen Folder in Container** to start using the definition.
+*   **Flutter SDK:** Latest commit from the `stable` channel (cloned via `git`).
+*   **Android SDK:** Platform `34`, Build Tools `34.0.0`, latest `cmdline-tools` & `platform-tools`.
+*   **Java Development Kit:** OpenJDK `17` (LTS).
+*   **Firebase CLI:** Latest version (installed via official script).
+*   **Supabase CLI:** Latest version (downloaded from GitHub releases).
+*   **Zsh Shell:** Enhanced shell with Oh My Zsh installed.
+*   **scrcpy:** Display and control Android devices connected via ADB.
+*   **Git LFS:** For handling large files in Git repositories (system hooks installed).
+*   **Linux Desktop Dependencies:** Pre-installed for building Flutter Linux apps (`clang`, `cmake`, `ninja`, `pkg-config`, `libgtk-3-dev`).
+*   **VS Code Extensions:** Dart, Flutter, Cloud Code (Firebase/GCP), Supabase.
+*   **Common Utilities:** `curl`, `wget`, `unzip`, `jq`, etc.
 
-## Testing the definition
+## Maintainability & Updates
 
-This definition includes some test code that will help you verify it is working as expected on your system. Follow these steps:
+The goal is to stay reasonably up-to-date with minimal manual intervention.
 
-1. If this is your first time using a development container, please follow the [getting started steps](https://aka.ms/vscode-remote/containers/getting-started) to set up your machine.
-2. Clone this repository.
-3. Start VS Code, press <kbd>F1</kbd>, and select **Remote-Containers: Open Folder in Container...**
-4. Select the `flutter-dev-container` folder.
-5. After the folder has opened in the container, press <kbd>F5</kbd> to start the project and launch the browser.
-6. You should see Counter App example after the page loads.
-7. From here, you can edit the contents of the `test-project` folder to do further testing.
-> If your're using Chrome as default browser, it will load a white page, to fix this you need to install the [Dart Debug Extension](https://chrome.google.com/webstore/detail/dart-debug-extension/eljbmlghnomdjgdjmbdekegdkbabckhm).
+*   **Automatic Updates (on Container Rebuild):**
+    *   **Flutter SDK:** Fetches the latest commit from the configured `FLUTTER_CHANNEL` (`stable` by default) in the Dockerfile.
+    *   **Firebase CLI:** The install script fetches the latest version.
+    *   **Supabase CLI:** The Dockerfile fetches the latest `.deb` release from GitHub.
+    *   **Android `cmdline-tools`, `platform-tools`, `emulator`:** `sdkmanager --update` attempts to get the latest patch versions for installed components.
+    *   **System Packages:** `apt update` fetches the latest versions available in the Ubuntu 22.04 repositories at build time.
 
-## Container settings
+*   **Manual Review Recommended Periodically:**
+    *   **`.devcontainer/Dockerfile`:**
+        *   `FROM ubuntu:22.04`: Consider updating the base image LTS version (e.g., to `24.04`) every ~2 years for newer system libraries and security updates.
+        *   `openjdk-17-jdk-headless`: Update the JDK LTS version if required by future Android or Flutter versions.
+        *   `ENV ANDROID_PLATFORM_VERSION=34`: Update the target Android platform version based on your project needs or new Android releases. The `ANDROID_BUILD_TOOLS_VERSION` will update automatically based on this.
 
-At the start of the Dockerfile you can setup things related to the SDKs used, for that change the value of the ENV variables.
-```
-#
-# Android SDK
-# https://developer.android.com/studio#downloads
-ENV ANDROID_SDK_TOOLS_VERSION 6514223
-ENV ANDROID_PLATFORM_VERSION 29
-ENV ANDROID_BUILD_TOOLS_VERSION 29.0.3
-ENV ANDROID_HOME=/opt/android-sdk-linux
-ENV ANDROID_SDK_ROOT="$ANDROID_HOME"
-ENV PATH=${PATH}:${ANDROID_HOME}/cmdline-tools/tools/bin:${ANDROID_HOME}/platform-tools:${ANDROID_HOME}/emulator
+## Verifying the Setup
 
-#
-# Flutter SDK
-# https://flutter.dev/docs/development/tools/sdk/releases?tab=linux
-ENV FLUTTER_CHANNEL="beta"
-ENV FLUTTER_VERSION="1.19.0-4.3.pre"
-# Set this variable as "enable" to auto config flutter web-server.
-# Make sure to use the needed channel and version for this.
-ENV FLUTTER_WEB="enable"
-ENV FLUTTER_HOME=/opt/flutter
-ENV PATH=${PATH}:${FLUTTER_HOME}/bin
-```
-Remember that for work with flutter web you should use the Beta channel
+Once the container is built and VS Code has connected (you should see a Zsh prompt like `~ %` in the integrated terminal):
 
-## Android development
+1.  **Verify User:** Run `whoami`. Expected output: `vscode`.
+2.  **Verify Shell:** Run `echo $SHELL`. Expected output: `/bin/zsh`.
+3.  **Run Flutter Doctor:** Run `flutter doctor -v` (or use the alias `fd`).
+    *   Check that `Flutter`, `Android toolchain`, `Chrome`, `Linux toolchain`, and `Android Studio` (even if not installed, it checks for the SDK) sections show reasonable paths and versions (e.g., `/home/vscode/flutter`, `/home/vscode/android-sdk-linux`).
+    *   Check `Connected device` section (will likely show none initially).
+4.  **Check CLI Versions:**
+    *   `firebase --version`
+    *   `supabase --version`
+    *   `scrcpy --version`
+    *   `git lfs version`
+5.  **Test Aliases:** Type `fd` and press Enter (should run `flutter doctor`). Try `frc`, `supas`, etc.
 
-### Linux
-Connect your physical Android device to your system via USB port.
-Set the connection mode to PTP or File transfer inside the mobile device.
-Run `flutter doctor` from the Docker container terminal.
-> If you do not see the green check mark, then it might be that you have adb running on the host machine and it has connected to it. An ADB daemon running on the device cannot be connected to two ADB servers. So, on the host machine, run this command to disconnect from ADB:
-`adb kill-server`
+## Android Development
 
-Now you should be able to connect to the device using the ADB on Docker.
+Connecting Android devices or emulators requires using ADB (Android Debug Bridge) over the network, as direct USB passthrough is limited in Docker Desktop.
 
-### MacOS and Windows
-You can't share your USB with dev container on macOS and Windows, but this link can be done using adb over TCP/IP, for that you should have `adb` installed on you host OS. The `adb` comes with the SDK Platform-Tools, which can be downloaded from [here](https://developer.android.com/studio/releases/platform-tools#downloads).
+### Physical Devices (All Host OS - Windows/Mac/Linux)
 
-Connect your Android device to the system (make sure debug mode is turned on).
+The recommended method is ADB over TCP/IP. This requires `adb` installed on your **host** machine.
 
-1. Run the following command to see the list of connected devices: ```adb devices```
-2. Run the following commands to connect to the device wirelessly: 
-    ```
+1.  **Install ADB on Host:** Download the [Android SDK Platform Tools](https://developer.android.com/studio/releases/platform-tools#downloads) for your host OS and add `adb` to your host's PATH.
+2.  **Enable Debugging:** On your Android device, enable Developer Options and USB Debugging.
+3.  **Connect via USB (Temporarily):** Connect your device to your host machine via USB.
+4.  **Switch to TCP/IP Mode (Host Terminal):** Open a terminal *on your host machine* and run:
+    ```bash
+    # Verify host ADB sees the device via USB
+    adb devices
+
+    # Tell the device to listen for TCP/IP connections on port 5555
     adb tcpip 5555
-    adb connect 192.168.0.5:5555
+    ```
+5.  **Find Device IP:** Find your device's local network IP address (usually in Settings > Wi-Fi > Connected Network details, or Settings > About Phone > Status).
+6.  **Connect via Wi-Fi (Host Terminal):**
+    ```bash
+    # Replace YOUR_DEVICE_IP with the actual IP found in the previous step
+    adb connect YOUR_DEVICE_IP:5555
+
+    # Verify the host ADB now sees the device via Wi-Fi (it might list both USB and Wi-Fi initially)
     adb devices
     ```
-    > Replace the IP address with that of the WiFi the mobile device is connected to. You can get it by going to WiFi Settings -> Advanced on your mobile device.
-    
-    > NOTE: Both the mobile device and the system should be connected to the same network.
-    
-    > You will see that both the usb connected device and the wirelessly connected device are displayed.
-3. Disconnect the device connected via USB cable, and again run the command `adb devices` to verify whether the device is still connected wirelessly.
-4. Now, run the Docker container inside VS Code.
-5. From the container, run this command to check if any device is connected:
-	`adb devices`
-    > You will get an empty list.
-6. Then run the following command:
-	```
-    adb connect 192.168.0.5:5555
-	adb devices
-    ```
-    > Use the same IP address and port number you specified before while connecting to `adb` from your system.
-
-    > Also, make sure that you allow USB debugging when the pop-up comes on the device.
-7. In the previous step, you might get device unauthorized. To fix that, run:
-	```
+7.  **Disconnect USB:** You can now safely disconnect the USB cable. The Wi-Fi ADB connection should persist.
+8.  **Connect from Container (VS Code Terminal):** Open the integrated terminal *inside the Dev Container* and run:
+    ```bash
+    # Ensure no old container ADB server is running
     adb kill-server
-	adb connect 192.168.0.5:5555
-	adb devices
+
+    # Connect to the device using the same IP address
+    adb connect YOUR_DEVICE_IP:5555
+
+    # Verify the container ADB sees the device
+    adb devices
+
+    # Check if Flutter recognizes the device
+    flutter doctor
     ```
-    > Now you will see that the unauthorized error is gone.
-8. Run `flutter doctor` once to verify that the device is recognized by Flutter.
+9.  You should now be able to select the device and run your app (`flutter run` or `frd`) and use tools like `scrcpy` from within the container.
+
+### Connecting to Host Emulator (Windows/Mac/Linux Host)
+
+Using an Android Emulator running directly on your host machine is often simpler.
+
+1.  **Start Emulator on Host:** Launch your desired Android Emulator using Android Studio or the `emulator` command *on your host machine*. Wait for it to fully boot.
+2.  **Connect from Container (VS Code Terminal):** Open the integrated terminal *inside the Dev Container* and run:
+    ```bash
+    # Ensure no old container ADB server is running
+    adb kill-server
+
+    # Connect to the host machine's ADB server. Docker Desktop provides the special DNS name 'host.docker.internal'
+    # which resolves to the host's internal IP address. Port 5037 is the default ADB server port.
+    adb connect host.docker.internal:5037
+
+    # Verify the container ADB sees the emulator running on the host
+    adb devices
+
+    # Check if Flutter recognizes the emulator
+    flutter doctor
+    ```
+3.  You should now be able to select the host emulator as a target device for `flutter run` (or `frd`).
+
+## Shell & Aliases
+
+*   The default shell in this container is **Zsh**, enhanced with **Oh My Zsh**.
+*   The following convenient aliases are pre-configured in `~/.zshrc`:
+    *   `fd="flutter doctor"`
+    *   `frc="flutter run -d chrome"` (Run for Chrome)
+    *   `frd="flutter run"` (Run for default device)
+    *   `supas="supabase start"`
+    *   `supastop="supabase stop"`
 
 ## License
 
-Licensed under the MIT License. See [LICENSE](https://github.com/lucashilles/flutter-dev-container/blob/master/LICENSE).
+Copyright (c) 2020-2025 Lucas Hilleshein dos Santos
+
+Licensed under the MIT License. See [LICENSE](LICENSE) file for details.

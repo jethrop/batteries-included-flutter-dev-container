@@ -22,9 +22,9 @@
 
 **Unified Step-by-Step Plan (Future-Proofed):**
 
-**Phase 1: Update Dockerfile - Base Image, Core Dependencies, System Tools**
+**Phase 1: Update Dockerfile - Base Image, Core Dependencies, System Tools [COMPLETED]**
 
-1.  **Set Base Image, Install Dependencies & System Tools:**
+1.  **Set Base Image, Install Dependencies & System Tools: [COMPLETED]**
     *   **File:** `.devcontainer/Dockerfile`
     *   **Action:** Specify Ubuntu LTS base. Install LTS JDK. Install essential build tools, `git`, enhanced shell (`zsh`), helpful utilities (`scrcpy`, `git-lfs`), and prerequisites for dynamic CLI installs (`jq`). Install Git LFS system-wide hooks immediately after package install.
     *   **Changes:**
@@ -72,9 +72,9 @@
         ```
     *   **Why:** Sets a stable base, installs necessary system-wide tools and libraries. `git lfs install --system` ensures LFS is active. Creates user with Zsh default.
 
-**Phase 2: Update Dockerfile - Dynamic CLI Installations**
+**Phase 2: Update Dockerfile - Dynamic CLI Installations [COMPLETED]**
 
-2.  **Install Latest Supabase & Firebase CLIs:**
+2.  **Install Latest Supabase & Firebase CLIs: [COMPLETED]**
     *   **File:** `.devcontainer/Dockerfile`
     *   **Action:** Add `RUN` commands (still as `root`) to dynamically fetch and install the latest Supabase CLI from GitHub releases and the latest Firebase CLI using its official script.
     *   **Additions (Insert after user creation block):**
@@ -92,9 +92,9 @@
         ```
     *   **Why:** Installs the most recent versions of these CLIs available at build time without hardcoding version numbers.
 
-**Phase 3: Update Dockerfile - User Environment Setup**
+**Phase 3: Update Dockerfile - User Environment Setup [COMPLETED]**
 
-3.  **Install Oh My Zsh & Configure User Environment:**
+3.  **Install Oh My Zsh & Configure User Environment: [COMPLETED]**
     *   **File:** `.devcontainer/Dockerfile`
     *   **Action:** Switch to the `vscode` user. Install Oh My Zsh non-interactively. Add custom aliases to `.zshrc`.
     *   **Additions (Insert after CLI installs):**
@@ -123,9 +123,9 @@
         ```
     *   **Why:** Sets up the user's enhanced shell environment with helpful aliases and ensures the Flutter path is explicitly available if needed by shell plugins.
 
-**Phase 4: Update Dockerfile - SDK Installations (as User)**
+**Phase 4: Update Dockerfile - SDK Installations (as User) [COMPLETED]**
 
-4.  **Configure & Install Android SDK:**
+4.  **Configure & Install Android SDK: [COMPLETED]**
     *   **File:** `.devcontainer/Dockerfile`
     *   **Action:** Define Android `ENV` vars (pinning only the platform version). Install latest tools and specific platform/build-tools using `sdkmanager` *as the `vscode` user* into their home directory.
     *   **Changes:**
@@ -157,7 +157,7 @@
         ```
     *   **Why:** Gets latest tooling, requires minimal user intervention (just platform API level). Installs with correct user permissions.
 
-5.  **Install Latest Flutter SDK from Channel Branch:**
+5.  **Install Latest Flutter SDK from Channel Branch: [COMPLETED]**
     *   **File:** `.devcontainer/Dockerfile`
     *   **Action:** Define Flutter channel `ENV` var. Clone the Flutter repo directly from the specified channel branch using `git` *as the `vscode` user*. Configure Flutter.
     *   **Changes:**
@@ -190,9 +190,9 @@
         ```
     *   **Why:** Automatically uses the latest commit from the chosen Flutter channel at build time. Installs with correct user permissions.
 
-**Phase 5: Update devcontainer.json Configuration**
+**Phase 5: Update devcontainer.json Configuration [COMPLETED]**
 
-6.  **Configure User, Shell, Extensions, Ports, Settings:**
+6.  **Configure User, Shell, Extensions, Ports, Settings: [COMPLETED]**
     *   **File:** `.devcontainer/devcontainer.json`
     *   **Action:** Ensure `remoteUser` is `vscode`. Set default shell to `zsh`. Remove `postCreateCommand`. Add necessary extensions. Suggest relevant port forwards. Add setting for Flutter SDK path.
     *   **Changes:**
@@ -239,13 +239,13 @@
         ```
     *   **Why:** Configures VS Code for the container environment, installs necessary extensions, uses the secure non-root user, and removes potentially disruptive automatic commands. Explicitly setting `dart.flutterSdkPath` improves reliability.
 
-**Phase 6: Update Documentation (README & LICENSE)**
+**Phase 6: Update Documentation (README & LICENSE) [COMPLETED]**
 
-7.  **Update LICENSE:**
+7.  **Update LICENSE: [COMPLETED]**
     *   **File:** `LICENSE`
     *   **Action:** Update the copyright year (e.g., `2024` or `2020-2024`).
 
-8.  **Revise README.md:**
+8.  **Revise README.md: [COMPLETED]**
     *   **File:** `README.md`
     *   **Action:**
         *   Update summary to mention key included tools (Zsh, Firebase CLI, Supabase CLI, scrcpy, Linux Desktop deps).
