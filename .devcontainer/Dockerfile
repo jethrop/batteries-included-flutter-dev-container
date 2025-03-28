@@ -19,10 +19,12 @@ RUN apt update && apt install -y --no-install-recommends git && \
        openjdk-17-jdk-headless \
        # --- Core Build/Dev Tools & Utilities ---
        wget curl zip unzip xz-utils ca-certificates apt-transport-https lsb-release gnupg \
-       # --- Parser for GitHub API ---
+       # --- Parser for GitHub API (still needed for other potential dynamic fetches) ---
        jq \
        # --- Linux Desktop Build Dependencies (Optional but good for Flutter) ---
        clang cmake ninja-build pkg-config libgtk-3-dev liblzma-dev \
+       # --- Prerequisites for Homebrew ---
+       build-essential procps curl file \
        # --- Added Tooling ---
        scrcpy \
        git-lfs \
@@ -40,15 +42,16 @@ RUN groupadd --gid $USER_GID $USERNAME \
     && echo $USERNAME ALL=\(root\) NOPASSWD:ALL > /etc/sudoers.d/$USERNAME \
     && chmod 0440 /etc/sudoers.d/$USERNAME
 
-# Phase 2: Dynamic CLI Installations
-# --- Install latest Supabase CLI dynamically ---
-RUN LATEST_RELEASE_URL=$(curl -sL "https://api.github.com/repos/supabase/cli/releases/latest" | jq -r ".assets[] | select(.name | test(\"linux_amd64.deb$\")) | .browser_download_url") \
-    && echo "Downloading Supabase CLI from: $LATEST_RELEASE_URL" \
-    && wget --quiet "$LATEST_RELEASE_URL" -O supabase_latest_linux_amd64.deb \
-    && apt update && apt install -y ./supabase_latest_linux_amd64.deb \
-    && rm supabase_latest_linux_amd64.deb \
-    && apt-get clean && rm -rf /var/lib/apt/lists/* # Clean up apt cache again
+# --- Install Homebrew (as root, non-interactive) ---
+# Installs under /home/linuxbrew/.linuxbrew
+# Needs user interaction simulation ('< /dev/null') and prerequisites installed above
+RUN /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)" < /dev/null
 
+# --- Add Homebrew to sudoers path (needed for brew installs that require sudo) ---
+# Although we install as user later, some formulae might need sudo during install
+RUN echo 'Defaults secure_path="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/snap/bin:/home/linuxbrew/.linuxbrew/bin:/home/linuxbrew/.linuxbrew/sbin"' > /etc/sudoers.d/secure_path_brew
+
+# Phase 2: Dynamic CLI Installations (Supabase moved to Phase 3/User setup)
 # --- Install latest Firebase CLI ---
 RUN curl -sL https://firebase.tools | bash
 
@@ -60,8 +63,12 @@ WORKDIR /home/$USERNAME
 # --- Install Oh My Zsh non-interactively ---
 RUN sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended
 
-# --- Add custom aliases and environment settings to .zshrc ---
-RUN echo '\n# Custom Aliases & Settings\n\
+# --- Add Homebrew setup, custom aliases, and environment settings to .zshrc ---
+# Note: Adding to .zshrc ensures it's available in interactive shells.
+# .zprofile is typically for login shells, but Zsh might source it depending on config. Adding to both is safer.
+RUN echo '\n# Setup Homebrew\n\
+eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"\n\
+\n# Custom Aliases & Settings\n\
 alias fd="flutter doctor"\n\
 alias frc="flutter run -d chrome"\n\
 alias frd="flutter run"\n\
@@ -71,7 +78,12 @@ alias supastop="supabase stop"\n\
 # Ensure Flutter SDK path is recognized by Zsh plugins (if any)\n\
 export FLUTTER_HOME=/home/vscode/flutter\n\
 export PATH=$FLUTTER_HOME/bin:$PATH\n\
-' >> /home/$USERNAME/.zshrc
+' >> /home/$USERNAME/.zshrc \
+    && echo 'eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"' >> /home/$USERNAME/.zprofile
+
+# --- Install latest Supabase CLI via Homebrew (as user) ---
+# Needs to run after Homebrew PATH is configured for the user shell
+RUN sudo -u $USERNAME /home/linuxbrew/.linuxbrew/bin/brew install supabase/tap/supabase
 
 # Phase 4: SDK Installations (as User)
 # --- Android SDK Configuration ---

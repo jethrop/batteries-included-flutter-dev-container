@@ -9,7 +9,7 @@
     *   Install `cmdline-tools;latest` using `sdkmanager` to get the newest tools.
 *   **Flutter SDK:** Clone the desired channel (`stable`, `beta`) directly using `git` to get the latest commit on that branch at build time.
 *   **Firebase CLI:** Use the official install script (`curl ... | bash`), which fetches the latest version.
-*   **Supabase CLI:** Fetch the latest release asset URL from the GitHub API dynamically using `curl` and `jq`.
+*   **Supabase CLI:** Install via Homebrew (`brew install supabase/tap/supabase`) for easier management.
 *   **Other Tools (scrcpy, git-lfs, zsh):** Install via `apt` from the Ubuntu LTS repository. `apt update` ensures the latest available *within that repo* are used.
 
 **Prerequisites:**
@@ -49,10 +49,12 @@
                openjdk-17-jdk-headless \
                # --- Core Build/Dev Tools & Utilities ---
                wget curl zip unzip xz-utils ca-certificates apt-transport-https lsb-release gnupg \
-               # --- Parser for GitHub API ---
+               # --- Parser for GitHub API (still needed for other potential dynamic fetches) ---
                jq \
                # --- Linux Desktop Build Dependencies (Optional but good for Flutter) ---
                clang cmake ninja-build pkg-config libgtk-3-dev liblzma-dev \
+               # --- Prerequisites for Homebrew ---
+               build-essential procps curl file \
                # --- Added Tooling ---
                scrcpy \
                git-lfs \
@@ -70,34 +72,44 @@
             && echo $USERNAME ALL=\(root\) NOPASSWD:ALL > /etc/sudoers.d/$USERNAME \
             && chmod 0440 /etc/sudoers.d/$USERNAME
         ```
-    *   **Why:** Sets a stable base, installs necessary system-wide tools and libraries. `git lfs install --system` ensures LFS is active. Creates user with Zsh default.
+    *   **Why:** Sets a stable base, installs necessary system-wide tools, libraries, and Homebrew prerequisites. `git lfs install --system` ensures LFS is active. Creates user with Zsh default.
 
-**Phase 2: Update Dockerfile - Dynamic CLI Installations [COMPLETED]**
+**Phase 1.5: Install Homebrew [NEW]**
 
-2.  **Install Latest Supabase & Firebase CLIs: [COMPLETED]**
+1.5. **Install Homebrew & Configure Sudoers:**
     *   **File:** `.devcontainer/Dockerfile`
-    *   **Action:** Add `RUN` commands (still as `root`) to dynamically fetch and install the latest Supabase CLI from GitHub releases and the latest Firebase CLI using its official script.
+    *   **Action:** Install Homebrew non-interactively as root. Add Homebrew's bin directories to the secure path in sudoers to allow potential sudo use during formula installations later.
     *   **Additions (Insert after user creation block):**
         ```dockerfile
-        # --- Install latest Supabase CLI dynamically ---
-        RUN LATEST_RELEASE_URL=$(curl -sL "https://api.github.com/repos/supabase/cli/releases/latest" | jq -r ".assets[] | select(.name | test(\"linux_amd64.deb$\")) | .browser_download_url") \
-            && echo "Downloading Supabase CLI from: $LATEST_RELEASE_URL" \
-            && wget --quiet "$LATEST_RELEASE_URL" -O supabase_latest_linux_amd64.deb \
-            && apt update && apt install -y ./supabase_latest_linux_amd64.deb \
-            && rm supabase_latest_linux_amd64.deb \
-            && apt-get clean && rm -rf /var/lib/apt/lists/* # Clean up apt cache again
+        # --- Install Homebrew (as root, non-interactive) ---
+        # Installs under /home/linuxbrew/.linuxbrew
+        # Needs user interaction simulation ('< /dev/null') and prerequisites installed above
+        RUN /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)" < /dev/null
 
+        # --- Add Homebrew to sudoers path (needed for brew installs that require sudo) ---
+        # Although we install as user later, some formulae might need sudo during install
+        RUN echo 'Defaults secure_path="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/snap/bin:/home/linuxbrew/.linuxbrew/bin:/home/linuxbrew/.linuxbrew/sbin"' > /etc/sudoers.d/secure_path_brew
+        ```
+    *   **Why:** Installs the Homebrew package manager, which will be used for Supabase CLI. Configuring sudoers helps prevent potential issues if a formula needs elevated privileges during installation.
+
+**Phase 2: Install Firebase CLI [COMPLETED]**
+
+2.  **Install Latest Firebase CLI: [COMPLETED]**
+    *   **File:** `.devcontainer/Dockerfile`
+    *   **Action:** Use the official Firebase CLI install script (as `root`).
+    *   **Additions (Insert after Homebrew install block):**
+        ```dockerfile
         # --- Install latest Firebase CLI ---
         RUN curl -sL https://firebase.tools | bash
         ```
-    *   **Why:** Installs the most recent versions of these CLIs available at build time without hardcoding version numbers.
+    *   **Why:** Installs the most recent version of Firebase CLI available at build time without hardcoding version numbers.
 
 **Phase 3: Update Dockerfile - User Environment Setup [COMPLETED]**
 
 3.  **Install Oh My Zsh & Configure User Environment: [COMPLETED]**
     *   **File:** `.devcontainer/Dockerfile`
-    *   **Action:** Switch to the `vscode` user. Install Oh My Zsh non-interactively. Add custom aliases to `.zshrc`.
-    *   **Additions (Insert after CLI installs):**
+    *   **Action:** Switch to the `vscode` user. Install Oh My Zsh non-interactively. Add Homebrew setup, custom aliases, and Flutter path to `.zshrc` and `.zprofile`.
+    *   **Additions (Insert after Firebase CLI install):**
         ```dockerfile
         # --- Switch to non-root user for user-specific setup ---
         USER $USERNAME
@@ -106,8 +118,12 @@
         # --- Install Oh My Zsh non-interactively ---
         RUN sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended
 
-        # --- Add custom aliases and environment settings to .zshrc ---
-        RUN echo '\n# Custom Aliases & Settings\n\
+        # --- Add Homebrew setup, custom aliases, and environment settings to .zshrc ---
+        # Note: Adding to .zshrc ensures it's available in interactive shells.
+        # .zprofile is typically for login shells, but Zsh might source it depending on config. Adding to both is safer.
+        RUN echo '\n# Setup Homebrew\n\
+        eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"\n\
+        \n# Custom Aliases & Settings\n\
         alias fd="flutter doctor"\n\
         alias frc="flutter run -d chrome"\n\
         alias frd="flutter run"\n\
@@ -117,11 +133,21 @@
         # Ensure Flutter SDK path is recognized by Zsh plugins (if any)\n\
         export FLUTTER_HOME=/home/vscode/flutter\n\
         export PATH=$FLUTTER_HOME/bin:$PATH\n\
-        ' >> /home/$USERNAME/.zshrc
-
-        # Note: Android SDK paths will be set via ENV vars below, Zsh will pick them up
+        ' >> /home/$USERNAME/.zshrc \
+            && echo 'eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"' >> /home/$USERNAME/.zprofile
         ```
-    *   **Why:** Sets up the user's enhanced shell environment with helpful aliases and ensures the Flutter path is explicitly available if needed by shell plugins.
+    *   **Why:** Sets up the user's enhanced shell environment, configures Homebrew PATH, adds helpful aliases, and ensures the Flutter path is explicitly available.
+
+3.1. **Install Supabase CLI via Homebrew [NEW]**
+    *   **File:** `.devcontainer/Dockerfile`
+    *   **Action:** Install the latest Supabase CLI using Homebrew as the `vscode` user.
+    *   **Additions (Insert after .zshrc configuration):**
+        ```dockerfile
+        # --- Install latest Supabase CLI via Homebrew (as user) ---
+        # Needs to run after Homebrew PATH is configured for the user shell
+        RUN sudo -u $USERNAME /home/linuxbrew/.linuxbrew/bin/brew install supabase/tap/supabase
+        ```
+    *   **Why:** Installs Supabase CLI using Homebrew, allowing for easier updates via `brew upgrade supabase` later.
 
 **Phase 4: Update Dockerfile - SDK Installations (as User) [COMPLETED]**
 
@@ -250,9 +276,9 @@
     *   **Action:**
         *   Update summary to mention key included tools (Zsh, Firebase CLI, Supabase CLI, scrcpy, Linux Desktop deps).
         *   **Remove** outdated/misleading sections ("Container settings" with ENV vars, "Testing the definition").
-        *   **Add** "Key Features & Included Tooling" section listing the main components and their purpose (mentioning dynamic updates where applicable).
+        *   **Add** "Key Features & Included Tooling" section listing the main components and their purpose (mentioning dynamic updates where applicable, **update Supabase install method to Homebrew**).
         *   **Add** "Maintainability & Updates" section explaining:
-            *   What updates automatically (Flutter channel, CLIs via scripts/API).
+            *   What updates automatically (Flutter channel, Firebase CLI via script, **Supabase CLI via `brew upgrade`**, Android tools via `sdkmanager`).
             *   What requires periodic manual review in `Dockerfile` (`FROM ubuntu:...`, `openjdk-...`, `ANDROID_PLATFORM_VERSION`).
         *   **Add** "Verifying the Setup" section (run `flutter doctor -v`, `firebase --version`, `supabase --version`, `scrcpy --version`).
         *   **Revise** "Android Development" section:

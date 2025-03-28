@@ -48,7 +48,7 @@ This container comes pre-configured with:
 *   **Android SDK:** Platform `34`, Build Tools `34.0.0`, latest `cmdline-tools` & `platform-tools`.
 *   **Java Development Kit:** OpenJDK `17` (LTS).
 *   **Firebase CLI:** Latest version (installed via official script).
-*   **Supabase CLI:** Latest version (downloaded from GitHub releases).
+*   **Supabase CLI:** Latest version (installed via Homebrew).
 *   **Zsh Shell:** Enhanced shell with Oh My Zsh installed.
 *   **scrcpy:** Display and control Android devices connected via ADB.
 *   **Git LFS:** For handling large files in Git repositories (system hooks installed).
@@ -63,7 +63,7 @@ The goal is to stay reasonably up-to-date with minimal manual intervention.
 *   **Automatic Updates (on Container Rebuild):**
     *   **Flutter SDK:** Fetches the latest commit from the configured `FLUTTER_CHANNEL` (`stable` by default) in the Dockerfile.
     *   **Firebase CLI:** The install script fetches the latest version.
-    *   **Supabase CLI:** The Dockerfile fetches the latest `.deb` release from GitHub.
+    *   **Supabase CLI:** Can be updated inside the container by running `brew update && brew upgrade supabase`.
     *   **Android `cmdline-tools`, `platform-tools`, `emulator`:** `sdkmanager --update` attempts to get the latest patch versions for installed components.
     *   **System Packages:** `apt update` fetches the latest versions available in the Ubuntu 22.04 repositories at build time.
 
