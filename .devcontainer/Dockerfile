@@ -84,8 +84,10 @@ export PATH=$FLUTTER_HOME/bin:$PATH\n\
 
 # --- Install latest Supabase CLI via Homebrew (as user) ---
 # Needs to run after Homebrew PATH is configured for the user shell
-# Run directly as the current user ($USERNAME) since USER directive is already set
-RUN /home/linuxbrew/.linuxbrew/bin/brew install supabase/tap/supabase
+# Source the brew environment variables before running the install command
+# Cache bust: 2025-03-28 15:41:00 MDT
+RUN eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)" && \
+    /home/linuxbrew/.linuxbrew/bin/brew install supabase/tap/supabase
 
 # Phase 4: SDK Installations (as User)
 # --- Android SDK Configuration ---
@@ -133,7 +135,6 @@ RUN git clone --depth 1 --branch ${FLUTTER_CHANNEL} https://github.com/flutter/f
     && flutter precache \
     # Ensure project dependencies are up-to-date (less critical here, more for project)
     #&& flutter update-packages
-
 # Optional: Switch back to root if needed for final cleanup/commands (unlikely)
 # USER root
 # WORKDIR /
