@@ -1,6 +1,6 @@
 # Phase 1: Base Image, Core Dependencies, System Tools
 # Use a specific LTS version for stability. Plan to update manually every ~2 years.
-FROM ubuntu:22.04
+FROM ubuntu:24.04
 
 # Locale
 ENV LANG C.UTF-8
@@ -18,7 +18,8 @@ RUN apt update && apt install -y --no-install-recommends git && \
        # --- Use recent LTS JDK (e.g., 17) ---
        openjdk-17-jdk-headless \
        # --- Core Build/Dev Tools & Utilities ---
-       wget curl zip unzip xz-utils ca-certificates apt-transport-https lsb-release gnupg \
+       # Note: apt-transport-https is deprecated in 24.04+
+       wget curl zip unzip xz-utils ca-certificates lsb-release gnupg \
        # --- Parser for GitHub API (still needed for other potential dynamic fetches) ---
        jq \
        # --- Linux Desktop Build Dependencies (Optional but good for Flutter) ---
@@ -88,7 +89,7 @@ RUN sudo -u $USERNAME /home/linuxbrew/.linuxbrew/bin/brew install supabase/tap/s
 # Phase 4: SDK Installations (as User)
 # --- Android SDK Configuration ---
 # !! IMPORTANT: Review and update ANDROID_PLATFORM_VERSION periodically !!
-ENV ANDROID_PLATFORM_VERSION=34
+ENV ANDROID_PLATFORM_VERSION=35
 # Calculate Build Tools version based on Platform version for consistency
 ENV ANDROID_BUILD_TOOLS_VERSION=${ANDROID_PLATFORM_VERSION}.0.0
 # Install SDK in user's home directory
@@ -107,7 +108,7 @@ RUN mkdir -p ${ANDROID_HOME} \
     && sdkmanager --install "cmdline-tools;latest" "platform-tools" "emulator" \
        "platforms;android-${ANDROID_PLATFORM_VERSION}" "build-tools;${ANDROID_BUILD_TOOLS_VERSION}" \
        --sdk_root=${ANDROID_HOME} \
-    # Optional: Update all installed packages to latest patch versions
+    # Optional: Update all installed packages to latest patch versions (already done by installing latest above)
     && sdkmanager --update --sdk_root=${ANDROID_HOME}
 
 # --- Flutter SDK Configuration ---
