@@ -45,16 +45,16 @@ This definition does not require any special steps to use beyond the standard De
 This container comes pre-configured with:
 
 *   **Flutter SDK:** Latest commit from the `stable` channel (cloned via `git`).
-*   **Android SDK:** Platform `34`, Build Tools `34.0.0`, latest `cmdline-tools` & `platform-tools`.
-*   **Java Development Kit:** OpenJDK `17` (LTS).
+*   **Android SDK:** Platform `35`, Build Tools `35.0.0`, latest `cmdline-tools` (>=12.0), `platform-tools` (>=35.0.2), and `emulator` (>=34.2.0).
+*   **Java Development Kit:** OpenJDK `21` (LTS).
 *   **Firebase CLI:** Latest version (installed via official script).
 *   **Supabase CLI:** Latest version (installed via Homebrew).
 *   **Zsh Shell:** Enhanced shell with Oh My Zsh installed.
 *   **scrcpy:** Display and control Android devices connected via ADB.
 *   **Git LFS:** For handling large files in Git repositories (system hooks installed).
-*   **Linux Desktop Dependencies:** Pre-installed for building Flutter Linux apps (`clang`, `cmake`, `ninja`, `pkg-config`, `libgtk-3-dev`).
+*   **Linux Desktop Dependencies:** Pre-installed for building Flutter Linux apps (`clang`, `cmake`, `ninja-build`, `pkg-config`, `libgtk-3-dev`, `liblzma-dev`, `build-essential`).
 *   **VS Code Extensions:** Dart, Flutter, Cloud Code (Firebase/GCP), Supabase.
-*   **Common Utilities:** `curl`, `wget`, `unzip`, `jq`, etc.
+*   **Common Utilities:** `curl`, `wget`, `unzip`, `jq`, `procps`, `file`, etc.
 
 ## Maintainability & Updates
 
@@ -65,13 +65,13 @@ The goal is to stay reasonably up-to-date with minimal manual intervention.
     *   **Firebase CLI:** The install script fetches the latest version.
     *   **Supabase CLI:** Can be updated inside the container by running `brew update && brew upgrade supabase`.
     *   **Android `cmdline-tools`, `platform-tools`, `emulator`:** `sdkmanager --update` attempts to get the latest patch versions for installed components.
-    *   **System Packages:** `apt update` fetches the latest versions available in the Ubuntu 22.04 repositories at build time.
+    *   **System Packages:** `apt update` fetches the latest versions available in the Ubuntu 24.04 repositories at build time.
 
 *   **Manual Review Recommended Periodically:**
     *   **`.devcontainer/Dockerfile`:**
-        *   `FROM ubuntu:22.04`: Consider updating the base image LTS version (e.g., to `24.04`) every ~2 years for newer system libraries and security updates.
-        *   `openjdk-17-jdk-headless`: Update the JDK LTS version if required by future Android or Flutter versions.
-        *   `ENV ANDROID_PLATFORM_VERSION=34`: Update the target Android platform version based on your project needs or new Android releases. The `ANDROID_BUILD_TOOLS_VERSION` will update automatically based on this.
+        *   `FROM ubuntu:24.04`: Consider updating the base image LTS version (e.g., to `26.04`) every ~2 years for newer system libraries and security updates.
+        *   `openjdk-21-jdk-headless`: Update the JDK LTS version if required by future Android or Flutter versions.
+        *   `ENV ANDROID_PLATFORM_VERSION=35`: Update the target Android platform version based on your project needs or new Android releases. The `ANDROID_BUILD_TOOLS_VERSION` will update automatically based on this.
 
 ## Verifying the Setup
 
