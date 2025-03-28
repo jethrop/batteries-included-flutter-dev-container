@@ -1,5 +1,6 @@
 # Flutter (Future-Proofed Dev Container)
 
+!! NOT WORKING
 ## Summary
 
 *Develop Flutter based applications. Includes the Flutter SDK (latest stable), Android SDK (Platform 35), JDK 21, Zsh, Firebase CLI, Supabase CLI, scrcpy, Git LFS, Linux Desktop dependencies, and needed VS Code extensions.*
