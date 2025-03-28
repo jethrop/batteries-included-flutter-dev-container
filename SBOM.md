@@ -15,7 +15,7 @@ This document lists the software components included in the Dev Container enviro
 *   **Components:** (Versions reflect those available in Ubuntu 24.04 repos at build time)
     *   `git`
     *   `sudo`
-    *   `openjdk-17-jdk-headless`
+    *   `openjdk-21-jdk-headless` (Upgraded from 17)
     *   `wget`
     *   `curl`
     *   `zip`

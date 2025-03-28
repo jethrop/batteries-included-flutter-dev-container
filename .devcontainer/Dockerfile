@@ -15,8 +15,8 @@ ARG USER_GID=$USER_UID
 RUN apt update && apt install -y --no-install-recommends git && \
     apt install -y --no-install-recommends \
        sudo \
-       # --- Use recent LTS JDK (e.g., 17) ---
-       openjdk-17-jdk-headless \
+       # --- Use recent LTS JDK (e.g., 21) ---
+       openjdk-21-jdk-headless \
        # --- Core Build/Dev Tools & Utilities ---
        # Note: apt-transport-https is deprecated in 24.04+
        wget curl zip unzip xz-utils ca-certificates lsb-release gnupg \
@@ -131,7 +131,7 @@ RUN git clone --depth 1 --branch ${FLUTTER_CHANNEL} https://github.com/flutter/f
     # Download development binaries for host platform and configured targets
     && flutter precache \
     # Ensure project dependencies are up-to-date (less critical here, more for project)
-    && flutter update-packages
+    #&& flutter update-packages
 
 # Optional: Switch back to root if needed for final cleanup/commands (unlikely)
 # USER root
