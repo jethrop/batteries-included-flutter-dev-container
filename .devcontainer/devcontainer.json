@@ -34,6 +34,37 @@
 				"supabase.supabase"             // Supabase official extension
 			]
 		}
+	},
+	"features": {
+		"ghcr.io/devcontainers/features/git-lfs:1": {
+			"autoPull": true,
+			"version": "latest"
+		},
+		"ghcr.io/devcontainers/features/java:1": {
+			"version": "latest",
+			"jdkDistro": "ms",
+			"gradleVersion": "latest",
+			"mavenVersion": "latest",
+			"antVersion": "latest",
+			"groovyVersion": "latest"
+		},
+		"ghcr.io/meaningful-ooo/devcontainer-features/homebrew:2": {},
+		"ghcr.io/nordcominc/devcontainer-features/android-sdk:1": {},
+		"ghcr.io/devcontainers-extra/features/firebase-cli:2": {
+			"version": "latest"
+		},
+		"ghcr.io/devcontainers-extra/features/supabase-cli:1": {
+			"version": "latest"
+		},
+		"ghcr.io/devcontainers/features/common-utils:2": {
+			"installZsh": true,
+			"installOhMyZsh": true,
+			"installOhMyZshConfig": true,
+			"upgradePackages": true,
+			"username": "vscode",
+			"userUid": "1001",
+			"userGid": "1001"
+		}
 	}
 
 	// --- postCreateCommand REMOVED ---
