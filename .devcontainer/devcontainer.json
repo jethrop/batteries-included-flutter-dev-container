@@ -1,6 +1,12 @@
 {
     "name": "Flutter (Batteries Included - Latest Default)",
-    "dockerFile": "Dockerfile",
+
+    // --- Build Configuration ---
+    // Specifies the Dockerfile and the build context.
+    "build": {
+        "dockerfile": "Dockerfile",
+        "context": "." // Context is relative to devcontainer.json
+    },
 
     // --- Ports, Remote User, VS Code Settings & Extensions ---
     "forwardPorts": [
