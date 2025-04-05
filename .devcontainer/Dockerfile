@@ -15,6 +15,7 @@ ARG ANDROID_SDK_ROOT_PATH=/opt/android-sdk # <-- EXAMPLE PATH, CHANGE IF NEEDED!
 # Common Utils feature often handles git, sudo, curl, build-essential, etc.
 # Keep packages needed by Flutter or useful utilities like scrcpy.
 RUN apt-get update && apt-get install -y --no-install-recommends \
+    git \
     wget \
     zip \
     unzip \
