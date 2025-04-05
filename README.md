@@ -1,11 +1,10 @@
-# Flutter (Future-Proofed Dev Container)
+# Flutter Dev Container (Features-Based, Flexible Versions)
 
-!! NOT WORKING
 ## Summary
 
-*Develop Flutter based applications. Includes the Flutter SDK (latest stable), Android SDK (Platform 35), JDK 21, Zsh, Firebase CLI, Supabase CLI, scrcpy, Git LFS, Linux Desktop dependencies, and needed VS Code extensions.*
+*Develop Flutter applications using a Dev Container powered by Features. Includes Flutter SDK (manual install, stable), Android SDK (pinned via feature), Java (latest/pinned via feature), Zsh, Firebase CLI (latest/pinned via feature), Supabase CLI (latest/pinned via feature), scrcpy, Git LFS, Linux Desktop dependencies, and needed VS Code extensions.*
 
-This definition provides a comprehensive environment for Flutter development, aiming for maintainability by using latest stable versions where feasible.
+This definition provides a flexible and maintainable environment for Flutter development by leveraging Dev Container Features for common tooling, while keeping the Flutter SDK installation manual for precise control. It defaults to `latest` versions for Java and CLIs but allows easy switching to pinned versions via `devcontainer.json`.
 
 | Metadata | Value |
 |----------|-------|
@@ -16,11 +15,12 @@ This definition provides a comprehensive environment for Flutter development, ai
 | *Languages, platforms* | Dart, Flutter |
 
 ### Topics
-- [Flutter (Future-Proofed Dev Container)](#flutter-future-proofed-dev-container)
+- [Flutter Dev Container (Features-Based, Flexible Versions)](#flutter-dev-container-features-based-flexible-versions)
   - [Summary](#summary)
     - [Topics](#topics)
   - [Using this definition with an existing folder](#using-this-definition-with-an-existing-folder)
   - [Key Features \& Included Tooling](#key-features--included-tooling)
+  - [Configuration: Latest vs. Pinned Versions](#configuration-latest-vs-pinned-versions)
   - [Maintainability \& Updates](#maintainability--updates)
   - [Verifying the Setup](#verifying-the-setup)
   - [Android Development](#android-development)
@@ -43,36 +43,74 @@ This definition does not require any special steps to use beyond the standard De
 
 ## Key Features & Included Tooling
 
-This container comes pre-configured with:
+This container utilizes Dev Container Features for installing and configuring most tools, providing flexibility and easier updates.
 
-*   **Flutter SDK:** Latest commit from the `stable` channel (cloned via `git`).
-*   **Android SDK:** Platform `35`, Build Tools `35.0.0`, latest available `cmdline-tools`, `platform-tools`, and `emulator`.
-*   **Java Development Kit:** OpenJDK `21` (LTS).
-*   **Firebase CLI:** Latest version (installed via official script).
-*   **Supabase CLI:** Latest version (installed via Homebrew).
-*   **Zsh Shell:** Enhanced shell with Oh My Zsh installed.
-*   **scrcpy:** Display and control Android devices connected via ADB.
-*   **Git LFS:** For handling large files in Git repositories (system hooks installed).
-*   **Linux Desktop Dependencies:** Pre-installed for building Flutter Linux apps (`clang`, `cmake`, `ninja-build`, `pkg-config`, `libgtk-3-dev`, `liblzma-dev`, `build-essential`).
+*   **Installed via Dev Container Features (Configurable in `.devcontainer/devcontainer.json`):**
+    *   **Java Development Kit:** Defaults to `latest` OpenJDK from Microsoft. Option to switch to pinned JDK 21 (or others) via comments.
+    *   **Android SDK:** Pinned versions (required by Flutter). Defaults to Platform `35` / Build Tools `35.0.0`. Option to switch to other pinned sets (e.g., Platform 34) via comments. Includes platform-tools and optionally the emulator. *Verify the SDK path (`ARG ANDROID_SDK_ROOT_PATH`) in the Dockerfile matches the feature's install location!*
+    *   **Firebase CLI:** Defaults to `latest`. Option to switch to a pinned version via comments.
+    *   **Supabase CLI:** Defaults to `latest`. Option to switch to a pinned version via comments.
+    *   **Git LFS:** `latest` version, auto-pull enabled.
+    *   **Homebrew:** `latest` version (used by some features like Supabase CLI).
+    *   **Common Utilities:** Installs Zsh, Oh My Zsh, creates the `vscode` user, and handles basic package upgrades (`git`, `curl`, `sudo`, etc.).
+*   **Installed Manually (in `.devcontainer/Dockerfile`):**
+    *   **Flutter SDK:** Cloned from the `stable` channel via `git` during build time. Path: `/home/vscode/flutter`.
+    *   **Essential Linux Packages:** `apt` packages needed for Flutter Linux builds (`clang`, `cmake`, `ninja-build`, `pkg-config`, `libgtk-3-dev`, `liblzma-dev`) and utilities like `scrcpy`, `wget`, `zip`, `unzip`, `jq`.
 *   **VS Code Extensions:** Dart, Flutter, Cloud Code (Firebase/GCP), Supabase.
-*   **Common Utilities:** `curl`, `wget`, `unzip`, `jq`, `procps`, `file`, etc.
+
+## Configuration: Latest vs. Pinned Versions
+
+This Dev Container is designed for flexibility. You can easily switch between using the `latest` available versions of tools like Java, Firebase CLI, and Supabase CLI, or using specific `pinned` versions. This is controlled by commenting and uncommenting blocks within the `.devcontainer/devcontainer.json` file.
+
+**How to Switch:**
+
+1.  **Open:** `.devcontainer/devcontainer.json`
+2.  **Locate:** Find the tool you want to configure (e.g., `"// --- Java: ..."`).
+3.  **Comment Out:** Add `/*` before and `*/` after the entire JSON block for the currently *active* configuration (e.g., the "Latest Java" block if it's not commented).
+4.  **Uncomment:** Remove the `/*` and `*/` surrounding the JSON block for the *desired* configuration (e.g., the "Pinned Java" block).
+5.  **Adjust Pinned Version (Optional):** If you uncommented a "Pinned" block, you can change the `"version"` value within that block to the specific version you need.
+6.  **Rebuild:** Save the `devcontainer.json` file. Use the Command Palette (<kbd>Cmd/Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>P</kbd>) and run **Remote-Containers: Rebuild Container**.
+
+**Example: Switching Java from Latest to Pinned JDK 21**
+
+*   **Find:** The Java section in `devcontainer.json`.
+*   **Comment Latest:**
+    ```json
+    /* --- Latest Java (Default) ---
+    "ghcr.io/devcontainers/features/java:1": {
+        // "version": "latest",
+        "jdkDistro": "ms"
+    },
+    */ // End Latest Java
+    ```
+*   **Uncomment Pinned:**
+    ```json
+    --- Pinned Java (Example: JDK 21) ---
+    "ghcr.io/devcontainers/features/java:1": {
+        "version": "21",
+        "jdkDistro": "ms"
+    },
+    // End Pinned Java
+    ```
+*   **Rebuild:** Save and rebuild the container. `java --version` inside the container should now show JDK 21.
+
+**Note on Android SDK:** The Android SDK is always pinned due to Flutter's requirements. However, you can switch between *different sets* of pinned Platform/Build Tools versions using the same commenting method described above.
 
 ## Maintainability & Updates
 
-The goal is to stay reasonably up-to-date with minimal manual intervention.
+This features-based approach simplifies updates for most components.
 
-*   **Automatic Updates (on Container Rebuild):**
-    *   **Flutter SDK:** Fetches the latest commit from the configured `FLUTTER_CHANNEL` (`stable` by default) in the Dockerfile.
-    *   **Firebase CLI:** The install script fetches the latest version.
-    *   **Supabase CLI:** Can be updated inside the container by running `brew update && brew upgrade supabase`.
-    *   **Android `cmdline-tools`, `platform-tools`, `emulator`:** `sdkmanager --update` attempts to get the latest patch versions for installed components.
-    *   **System Packages:** `apt update` fetches the latest versions available in the Ubuntu 24.04 repositories at build time.
-
-*   **Manual Review Recommended Periodically:**
-    *   **`.devcontainer/Dockerfile`:**
-        *   `FROM ubuntu:24.04`: Consider updating the base image LTS version (e.g., to `26.04`) every ~2 years for newer system libraries and security updates.
-        *   `openjdk-21-jdk-headless`: Update the JDK LTS version (currently 21) if required by future Android or Flutter versions.
-        *   `ENV ANDROID_PLATFORM_VERSION=35`: Update the target Android platform version (currently 35) based on your project needs or new Android releases. The `ANDROID_BUILD_TOOLS_VERSION` will update automatically based on this.
+*   **Dev Container Feature Updates (on Container Rebuild):**
+    *   **Tools set to `latest` (Java, Firebase CLI, Supabase CLI, Git LFS, Homebrew, Common Utils):** These features will automatically pull their respective latest versions whenever the container is rebuilt (e.g., after changes to `devcontainer.json` or the Dockerfile, or via the **Remote-Containers: Rebuild Container** command).
+    *   **Tools set to `pinned` versions (Android SDK, optionally Java/CLIs):** Updates require manually changing the version number within the corresponding commented-out or active block in `devcontainer.json` and then rebuilding the container. Check the feature's documentation or repository for available pinned versions.
+*   **Manual Flutter SDK Updates:**
+    *   **On Rebuild:** The Dockerfile clones the latest commit from the `stable` channel (`git clone --depth 1 --branch stable ...`) every time the container image is rebuilt from scratch.
+    *   **Inside Container:** You can update Flutter manually within a running container by executing `flutter upgrade` in the terminal. This change will persist for the current container session but will be overwritten on the next full rebuild unless you commit the changes (not generally recommended for the SDK itself).
+*   **Base Image Updates:**
+    *   Updating the base Ubuntu OS (e.g., from `ubuntu:24.04` to `ubuntu:26.04`) requires editing the `FROM` line in the `.devcontainer/Dockerfile` and rebuilding.
+*   **APT Package Updates:**
+    *   The `common-utils` feature runs `apt-get upgrade` during its installation.
+    *   Essential packages listed in the Dockerfile (`scrcpy`, Flutter Linux deps, etc.) are installed via `apt-get install` during the image build. Their versions depend on the Ubuntu repositories at build time. You can manually run `sudo apt update && sudo apt upgrade` inside the container for temporary updates.
 
 ## Verifying the Setup
 
@@ -80,15 +118,24 @@ Once the container is built and VS Code has connected (you should see a Zsh prom
 
 1.  **Verify User:** Run `whoami`. Expected output: `vscode`.
 2.  **Verify Shell:** Run `echo $SHELL`. Expected output: `/bin/zsh`.
-3.  **Run Flutter Doctor:** Run `flutter doctor -v` (or use the alias `fd`).
-    *   Check that `Flutter`, `Android toolchain`, `Chrome`, `Linux toolchain`, and `Android Studio` (even if not installed, it checks for the SDK) sections show reasonable paths and versions (e.g., `/home/vscode/flutter`, `/home/vscode/android-sdk-linux`).
+3.  **Check Feature-Installed Tool Versions:**
+    *   `java --version` (Should show the version corresponding to the active block in `devcontainer.json` - latest by default, or pinned e.g., 21)
+    *   `firebase --version` (Should show latest or pinned version)
+    *   `supabase --version` (Should show latest or pinned version)
+    *   `git lfs version` (Should show latest version)
+    *   `brew --version` (Should show latest Homebrew version)
+4.  **Run Flutter Doctor:** Run `flutter doctor -v` (or use the alias `fd`).
+    *   Check `Flutter` version (should be latest stable from build time).
+    *   Check `Android toolchain` section:
+        *   Verify the `Android SDK at` path matches the `ANDROID_SDK_ROOT_PATH` argument set in the `.devcontainer/Dockerfile` (e.g., `/opt/android-sdk`). **This is crucial!**
+        *   Verify the correct Android Platform version is listed (e.g., `Platform android-35`, matching the default feature config).
+        *   Ensure `Android SDK Command-line Tools`, `SDK Platform-Tools`, and `SDK Build-Tools` versions are listed.
+        *   Check that Android licenses are accepted.
+    *   Check `Linux toolchain` section (should show Clang, CMake, etc.).
     *   Check `Connected device` section (will likely show none initially).
-4.  **Check CLI Versions:**
-    *   `firebase --version`
-    *   `supabase --version`
+5.  **Check Manually Installed Tools:**
     *   `scrcpy --version`
-    *   `git lfs version`
-5.  **Test Aliases:** Type `fd` and press Enter (should run `flutter doctor`). Try `frc`, `supas`, etc.
+6.  **Test Aliases:** Type `fd` and press Enter (should run `flutter doctor`). Try `frc`, `supas`, etc.
 
 ## Android Development
 

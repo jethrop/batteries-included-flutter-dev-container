@@ -1,72 +1,69 @@
 # Software Bill of Materials (SBOM) for Flutter Dev Container
 
-This document lists the software components included in the Dev Container environment defined by `.devcontainer/devcontainer.json` and `.devcontainer/Dockerfile`.
+This document lists the primary software components included in the Dev Container environment defined by `.devcontainer/devcontainer.json` and `.devcontainer/Dockerfile`.
 
-**Note:** Many components are installed using package managers or scripts that fetch the latest available version at the time the container image is built. Specific versions may vary depending on when the image was created.
+**Note:** This environment heavily utilizes Dev Container Features. Default configurations often use `latest` versions, meaning the specific version installed depends on when the container image is built or rebuilt. Users can customize versions (especially for Java and CLIs) by modifying the `features` block in `.devcontainer/devcontainer.json` as described in the `README.md`.
 
 ## 1. Base Operating System
 
 *   **OS:** Ubuntu
 *   **Version:** 24.04 (LTS) - Upgraded from 22.04
 
-## 2. System Packages (Installed via APT)
+## 2. Dev Container Features
 
-*   **Package Manager:** APT
-*   **Components:** (Versions reflect those available in Ubuntu 24.04 repos at build time)
-    *   `git`
-    *   `sudo`
-    *   `openjdk-21-jdk-headless` (Upgraded from 17)
-    *   `wget`
-    *   `curl`
-    *   `zip`
-    *   `unzip`
-    *   `xz-utils`
-    *   `ca-certificates`
-    *   `lsb-release`
-    *   `gnupg`
-    *   `jq`
-    *   `clang`
-    *   `cmake`
-    *   `ninja-build`
-    *   `pkg-config`
-    *   `libgtk-3-dev` (Note: Ubuntu 24.04 defaults towards GTK 4)
-    *   `liblzma-dev`
-    *   `build-essential`
-    *   `procps`
-    *   `file`
-    *   `scrcpy`
-    *   `git-lfs`
-    *   `zsh`
-    *   *Note: `apt-transport-https` removed as it's deprecated in Ubuntu 24.04.*
+*   **Installation Method:** Dev Container Features (via `.devcontainer/devcontainer.json`)
+*   **Components & Default Configuration:** (Users can override defaults as noted in `README.md`)
+    *   **`ghcr.io/devcontainers/features/common-utils:2`:**
+        *   **Provides:** `git`, `sudo`, `curl`, `zsh`, Oh My Zsh, user setup (`vscode`), package upgrades.
+        *   **Default:** Installs Zsh, OhMyZsh, upgrades packages.
+    *   **`ghcr.io/devcontainers/features/git-lfs:1`:**
+        *   **Provides:** Git Large File Storage client.
+        *   **Default:** `latest` version, `autoPull=true`.
+    *   **`ghcr.io/devcontainers/features/java:1`:**
+        *   **Provides:** Java Development Kit.
+        *   **Default:** `latest` version, `jdkDistro=ms` (Microsoft Build of OpenJDK).
+        *   **Alternative:** Pinned JDK 21 commented out.
+    *   **`ghcr.io/meaningful-ooo/devcontainer-features/homebrew:2`:**
+        *   **Provides:** Homebrew package manager (primarily for Linux).
+        *   **Default:** Installs latest Homebrew.
+    *   **`ghcr.io/nordcominc/devcontainer-features/android-sdk:1`:**
+        *   **Provides:** Android SDK Platform, Build Tools, Platform Tools, optionally Emulator.
+        *   **Default:** Pinned `platforms=android-35`, `buildTools=35.0.0`, `installEmulator=true`, `installPlatformTools=true`.
+        *   **Alternative:** Pinned Platform 34 commented out.
+    *   **`ghcr.io/devcontainers-extra/features/firebase-cli:2`:**
+        *   **Provides:** Firebase Command Line Interface.
+        *   **Default:** `latest` version.
+        *   **Alternative:** Pinned version commented out.
+    *   **`ghcr.io/devcontainers-extra/features/supabase-cli:1`:**
+        *   **Provides:** Supabase Command Line Interface.
+        *   **Default:** `latest` version.
+        *   **Alternative:** Pinned version commented out.
 
-## 3. Tools Installed via Scripts/Direct Download
+## 3. Manual Installations (via Dockerfile)
 
-*   **Homebrew:** Latest version from `install.sh` script at build time.
-*   **Firebase CLI:** Latest version from `firebase.tools` script at build time.
-*   **Oh My Zsh:** Latest version from `install.sh` script at build time.
-
-## 4. Tools Installed via Homebrew
-
-*   **Package Manager:** Homebrew
-*   **Components:**
-    *   `supabase/tap/supabase`: Latest version available in the tap at build time.
-
-## 5. Software Development Kits (SDKs)
-
-*   **Android SDK:**
-    *   **Installation Method:** Android SDK Manager (`sdkmanager`)
-    *   **Components:** (Versions reflect targets for Android 15/API 35 as of March 2025)
-        *   `cmdline-tools`: `latest` version available at build time (targeting >= 12.0).
-        *   `platform-tools`: Latest version available at build time (targeting >= 35.0.2).
-        *   `emulator`: Latest version available at build time (targeting >= 34.2.0).
-        *   `platforms;android-35`: Platform API Level 35 (Android 15).
-        *   `build-tools;35.0.0`: Specific version tied to platform version.
 *   **Flutter SDK:**
-    *   **Installation Method:** Git clone from GitHub.
-    *   **Channel:** `stable`
-    *   **Version:** Latest commit on the `stable` branch at the time of cloning (build time).
+    *   **Installation Method:** `git clone` from GitHub repository.
+    *   **Channel:** `stable` (defined by `ENV FLUTTER_CHANNEL`).
+    *   **Version:** Latest commit on the `stable` branch at the time of cloning (image build time).
+    *   **Configuration:** Configured with Android SDK path, Linux desktop enabled, analytics disabled.
+*   **System Packages (via APT):**
+    *   **Purpose:** Essential dependencies for Flutter Linux builds or useful utilities not covered by features.
+    *   **Components:** (Versions reflect those available in Ubuntu 24.04 repos at build time)
+        *   `wget`
+        *   `zip`
+        *   `unzip`
+        *   `xz-utils`
+        *   `ca-certificates`
+        *   `jq`
+        *   `clang`
+        *   `cmake`
+        *   `ninja-build`
+        *   `pkg-config`
+        *   `libgtk-3-dev`
+        *   `liblzma-dev`
+        *   `scrcpy`
 
-## 6. VS Code Extensions
+## 4. VS Code Extensions
 
 *   **Installation Method:** VS Code Marketplace (via `devcontainer.json`)
 *   **Components:** (Latest compatible versions installed by VS Code at container startup/build)

@@ -1,74 +1,116 @@
 {
-	"name": "Flutter (Future-Proofed)",
-	"dockerFile": "Dockerfile",
+    "name": "Flutter (Batteries Included - Latest Default)",
+    "dockerFile": "Dockerfile",
 
-	// Ports to forward from container to host (uncomment/adjust as needed)
+    // --- Ports, Remote User, VS Code Settings & Extensions ---
     "forwardPorts": [
-        // 54323, // Default Supabase Studio port
-        // Common Flutter web dev ports can be added if known
+        // 54323 // Default Supabase Studio port
     ],
-    // Optional: Open forwarded ports in browser automatically
-    // "portsAttributes": {
-    //     "54323": { "label": "Supabase Studio" }
-    // },
-    // "onAutoForwardPort": "openBrowser",
+    "remoteUser": "vscode",
+    "customizations": {
+        "vscode": {
+            "settings": {
+                "terminal.integrated.shell.linux": "/bin/zsh",
+                // Ensure this path matches the manual Flutter install in Dockerfile
+                "dart.flutterSdkPath": "/home/vscode/flutter"
+            },
+            "extensions": [
+                "dart-code.dart-code",
+                "dart-code.flutter",
+                "googlecloudtools.cloudcode",
+                "supabase.supabase"
+            ]
+        }
+    },
 
-	// Ensure VS Code connects as the non-root user 'vscode'
-	"remoteUser": "vscode", // Removed trailing comma here
+    // --- Dev Container Features Configuration ---
+    // Instructions: To switch between 'Latest' and 'Pinned' versions for a tool:
+    // 1. Find the tool's section below (e.g., Java, Firebase CLI).
+    // 2. Comment out the entire block for the currently active configuration (e.g., /* ... */ or // per line).
+    // 3. Uncomment the entire block for the desired configuration.
+    // 4. Modify the 'version' in the Pinned block if needed.
+    // 5. Save this file and Rebuild the container (Cmd/Ctrl+Shift+P -> Rebuild Container).
+    "features": {
+        // --- Git LFS: Usually safe with latest ---
+        "ghcr.io/devcontainers/features/git-lfs:1": {
+            "version": "latest", // Default
+            "autoPull": true
+        },
 
-	// Add customizations for VS Code
-	"customizations": {
-		"vscode": {
-			// Configure container settings
-			"settings": {
-				// Set Zsh as the default integrated shell
-				"terminal.integrated.shell.linux": "/bin/zsh",
-				// Help VS Code find the Flutter SDK path inside container
-				"dart.flutterSdkPath": "/home/vscode/flutter"
-			},
-			// VS Code extensions to install inside the container
-			"extensions": [
-				"dart-code.dart-code",          // Dart language support
-				"dart-code.flutter",            // Flutter specific features
-				"googlecloudtools.cloudcode",   // Firebase/GCP integration
-				"supabase.supabase"             // Supabase official extension
-			]
-		}
-	},
-	"features": {
-		"ghcr.io/devcontainers/features/git-lfs:1": {
-			"autoPull": true,
-			"version": "latest"
-		},
-		"ghcr.io/devcontainers/features/java:1": {
-			"version": "latest",
-			"jdkDistro": "ms",
-			"gradleVersion": "latest",
-			"mavenVersion": "latest",
-			"antVersion": "latest",
-			"groovyVersion": "latest"
-		},
-		"ghcr.io/meaningful-ooo/devcontainer-features/homebrew:2": {},
-		"ghcr.io/nordcominc/devcontainer-features/android-sdk:1": {},
-		"ghcr.io/devcontainers-extra/features/firebase-cli:2": {
-			"version": "latest"
-		},
-		"ghcr.io/devcontainers-extra/features/supabase-cli:1": {
-			"version": "latest"
-		},
-		"ghcr.io/devcontainers/features/common-utils:2": {
-			"installZsh": true,
-			"installOhMyZsh": true,
-			"installOhMyZshConfig": true,
-			"upgradePackages": true,
-			"username": "vscode",
-			"userUid": "1001",
-			"userGid": "1001"
-		}
-	}
+        // --- Java: Default to Latest, provide pinned JDK 21 as alternative ---
+        // --- Latest Java (Default) ---
+        "ghcr.io/devcontainers/features/java:1": {
+            // "version": "latest", // Or omit version entirely for latest
+            "jdkDistro": "ms"
+        },
+        /* --- Pinned Java (Example: JDK 21) ---
+        "ghcr.io/devcontainers/features/java:1": {
+            "version": "21",
+            "jdkDistro": "ms"
+        },
+        */ // End Pinned Java
 
-	// --- postCreateCommand REMOVED ---
+        // --- Homebrew: Always installs latest ---
+        "ghcr.io/meaningful-ooo/devcontainer-features/homebrew:2": {},
 
-    // Optional: Run commands after container is created (e.g., final checks)
-    // "postStartCommand": "flutter doctor -v"
-}
+        // --- Android SDK: Always Pinned (Required by Flutter). Default: Platform 35 ---
+        //       Switch between different *pinned* targets using comments below.
+        // --- Default Pinned Android SDK (Platform 35) ---
+        "ghcr.io/nordcominc/devcontainer-features/android-sdk:1": {
+            "platforms": "android-35",
+            "buildTools": "35.0.0",
+            "installEmulator": true, // Set true/false as needed
+            "installPlatformTools": true
+            // !! IMPORTANT: Verify the install path from this feature's documentation
+            //    and ensure it matches the ARG in the Dockerfile !!
+        },
+        /* --- Alternative Pinned Android SDK (Example: Platform 34) ---
+        "ghcr.io/nordcominc/devcontainer-features/android-sdk:1": {
+            "platforms": "android-34",
+            "buildTools": "34.0.0", // Check if build tools need adjustment for platform 34
+            "installEmulator": true,
+            "installPlatformTools": true
+            // Verify the install path (likely the same as above)
+        },
+        */ // End Alternative Pinned Android
+
+        // --- Firebase CLI: Default to Latest, provide pinned as alternative ---
+        // --- Latest Firebase CLI (Default) ---
+        "ghcr.io/devcontainers-extra/features/firebase-cli:2": {
+            "version": "latest"
+        },
+        /* --- Pinned Firebase CLI (Example: Specific Version) ---
+        "ghcr.io/devcontainers-extra/features/firebase-cli:2": {
+            "version": "13.0.0" // Replace with desired pinned version
+        },
+        */ // End Pinned Firebase CLI
+
+        // --- Supabase CLI: Default to Latest, provide pinned as alternative ---
+        // --- Latest Supabase CLI (Default) ---
+        "ghcr.io/devcontainers-extra/features/supabase-cli:1": {
+            "version": "latest"
+        },
+        /* --- Pinned Supabase CLI (Example: Specific Version) ---
+        "ghcr.io/devcontainers-extra/features/supabase-cli:1": {
+            "version": "1.100.0" // Replace with desired pinned version
+        },
+        */ // End Pinned Supabase CLI
+
+        // --- Common Utils: Handles Zsh, OhMyZsh, User Creation ---
+        // Usually safe with latest major version tag.
+        "ghcr.io/devcontainers/features/common-utils:2": {
+            "installZsh": true,
+            "installOhMyZsh": true,
+            "installOhMyZshConfig": true,
+            "upgradePackages": true, // Upgrades apt packages during feature install
+            "username": "vscode",
+            "userUid": "1000",
+            "userGid": "1000"
+        }
+    }, // End of features block
+
+    // --- Post Create Command: Runs after container creation and feature setup ---
+    // Used here to add shell aliases reliably after OhMyZsh is configured.
+    "postCreateCommand": "echo '\n# Custom Aliases (added via postCreateCommand)\nalias fd=\"flutter doctor\"\nalias frc=\"flutter run -d chrome\"\nalias frd=\"flutter run\"\nalias supas=\"supabase start\"\nalias supastop=\"supabase stop\"\n' >> ~/.zshrc"
+
+} // End of JSON

@@ -1,3 +1,7 @@
+**ARCHIVAL NOTE:** This upgrade plan is now obsolete. The project has migrated to a Dev Container Features-based approach. Configuration and version management are now primarily handled within `.devcontainer/devcontainer.json`. Please refer to the `README.md` for details on the current setup and how to manage tool versions.
+
+---
+
 **Goal:** Create a secure, up-to-date, feature-rich, consistent, and *maintainable* Flutter development container environment that automatically uses recent stable versions of key tools where feasible.
 
 **Key "Future-Proofing" Strategies:**
