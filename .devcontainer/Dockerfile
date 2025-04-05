@@ -59,7 +59,7 @@ RUN git clone --depth 1 --branch ${FLUTTER_CHANNEL} https://github.com/flutter/f
     # Ensure the 'vscode' user owns the Flutter installation
     # Create home dir structure if needed and set ownership BEFORE final USER switch
     && mkdir -p /home/vscode \
-    && chown -R 1000:1000 ${FLUTTER_HOME} /home/vscode
+    && chown -R 1001:1001 ${FLUTTER_HOME} /home/vscode
 
 # --- Final Container User ---
 # The 'vscode' user is created by the common-utils feature.

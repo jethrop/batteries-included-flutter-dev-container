@@ -110,8 +110,8 @@
             "installOhMyZshConfig": true,
             "upgradePackages": true, // Upgrades apt packages during feature install
             "username": "vscode",
-            "userUid": "1000",
-            "userGid": "1000"
+            "userUid": "1001",
+            "userGid": "1001"
         }
     }, // End of features block
 
