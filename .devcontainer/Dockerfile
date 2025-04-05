@@ -23,7 +23,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     ca-certificates \
     # Tools potentially needed for Flutter builds or diagnostics
     jq \
-    # Flutter Linux Desktop build dependencies
+    # Flutter Linux Desktop build 
+    curl \
     clang \
     cmake \
     ninja-build \
