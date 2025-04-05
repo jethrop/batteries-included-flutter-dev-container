@@ -129,8 +129,12 @@
         }, // End of features block
 
         // --- Post Create Command: Runs after container creation and feature setup ---
-        // Used here to add shell aliases reliably after OhMyZsh is configured.
-        "postCreateCommand": "echo '\n# Custom Aliases (added via postCreateCommand)\nalias fd=\"flutter doctor\"\nalias frc=\"flutter run -d chrome\"\nalias frd=\"flutter run\"\nalias supas=\"supabase start\"\nalias supastop=\"supabase stop\"\n' >> ~/.zshrc"
+        // Configures Flutter to use the feature-installed Android SDK, accepts licenses,
+        // and adds shell aliases after OhMyZsh is set up.
+        // Ensures vscode user owns the SDK directory before Flutter commands run.
+        // *Note: Flutter configuration depending on the feature-installed Android SDK was moved here
+        // from the Dockerfile because features run *after* the Dockerfile build completes.*
+        "postCreateCommand": "sudo chown -R vscode:vscode /opt/android-sdk && flutter config --android-sdk /opt/android-sdk && yes | flutter doctor --android-licenses && echo '\n# Custom Aliases (added via postCreateCommand)\nalias fd=\"flutter doctor\"\nalias frc=\"flutter run -d chrome\"\nalias frd=\"flutter run\"\nalias supas=\"supabase start\"\nalias supastop=\"supabase stop\"\n' >> ~/.zshrc"
 
     } // End of JSON
     ```
@@ -192,10 +196,6 @@
     # Clone Flutter, configure it, precache, and set permissions
     # This RUN command executes before the final USER switch, potentially as root or buildkit user
     RUN git clone --depth 1 --branch ${FLUTTER_CHANNEL} https://github.com/flutter/flutter.git ${FLUTTER_HOME} \
-        # Configure Flutter to use the Android SDK installed by the feature via the ARG
-        && ${FLUTTER_HOME}/bin/flutter config --android-sdk "${ANDROID_SDK_ROOT_PATH}" \
-        # Accept Android licenses (needs Android SDK configured first)
-        && yes | ${FLUTTER_HOME}/bin/flutter doctor --android-licenses \
         # Disable Flutter analytics
         && ${FLUTTER_HOME}/bin/flutter config --no-analytics \
         # Enable Linux desktop builds (requires apt packages installed above)
@@ -208,8 +208,8 @@
         && chown -R 1000:1000 ${FLUTTER_HOME} /home/vscode
 
     # --- Final Container User ---
-    # Switch to the non-root 'vscode' user created by the common-utils feature
-    USER vscode
+    # The 'vscode' user is created by the common-utils feature.
+    # The 'remoteUser' setting in devcontainer.json handles the final switch.
 
     # Optional: Set default working directory (often workspaceFolder is mounted here anyway)
     # WORKDIR /home/vscode

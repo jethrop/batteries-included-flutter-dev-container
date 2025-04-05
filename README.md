@@ -48,7 +48,7 @@ This container utilizes Dev Container Features for installing and configuring mo
 
 *   **Installed via Dev Container Features (Configurable in `.devcontainer/devcontainer.json`):**
     *   **Java Development Kit:** Defaults to `latest` OpenJDK from Microsoft. Option to switch to pinned JDK 21 (or others) via comments.
-    *   **Android SDK:** Pinned versions (required by Flutter). Defaults to Platform `35` / Build Tools `35.0.0`. Option to switch to other pinned sets (e.g., Platform 34) via comments. Includes platform-tools and optionally the emulator. *Verify the SDK path (`ARG ANDROID_SDK_ROOT_PATH`) in the Dockerfile matches the feature's install location!*
+    *   **Android SDK:** Pinned versions (required by Flutter). Defaults to Platform `35` / Build Tools `35.0.0`. Option to switch to other pinned sets (e.g., Platform 34) via comments. Includes platform-tools and optionally the emulator. *The SDK path (`ARG ANDROID_SDK_ROOT_PATH`) in the Dockerfile should match the feature's install location (e.g., /opt/android-sdk) and is used by the `postCreateCommand` to configure Flutter.*
     *   **Firebase CLI:** Defaults to `latest`. Option to switch to a pinned version via comments.
     *   **Supabase CLI:** Defaults to `latest`. Option to switch to a pinned version via comments.
     *   **Git LFS:** `latest` version, auto-pull enabled.
@@ -105,7 +105,7 @@ This features-based approach simplifies updates for most components.
     *   **Tools set to `latest` (Java, Firebase CLI, Supabase CLI, Git LFS, Homebrew, Common Utils):** These features will automatically pull their respective latest versions whenever the container is rebuilt (e.g., after changes to `devcontainer.json` or the Dockerfile, or via the **Remote-Containers: Rebuild Container** command).
     *   **Tools set to `pinned` versions (Android SDK, optionally Java/CLIs):** Updates require manually changing the version number within the corresponding commented-out or active block in `devcontainer.json` and then rebuilding the container. Check the feature's documentation or repository for available pinned versions.
 *   **Manual Flutter SDK Updates:**
-    *   **On Rebuild:** The Dockerfile clones the latest commit from the `stable` channel (`git clone --depth 1 --branch stable ...`) every time the container image is rebuilt from scratch.
+    *   **On Rebuild:** The Dockerfile clones the latest commit from the `stable` channel (`git clone --depth 1 --branch stable ...`) every time the container image is rebuilt from scratch. Flutter is configured to use the feature-installed Android SDK via the `postCreateCommand` after the container starts and features are installed.
     *   **Inside Container:** You can update Flutter manually within a running container by executing `flutter upgrade` in the terminal. This change will persist for the current container session but will be overwritten on the next full rebuild unless you commit the changes (not generally recommended for the SDK itself).
 *   **Base Image Updates:**
     *   Updating the base Ubuntu OS (e.g., from `ubuntu:24.04` to `ubuntu:26.04`) requires editing the `FROM` line in the `.devcontainer/Dockerfile` and rebuilding.

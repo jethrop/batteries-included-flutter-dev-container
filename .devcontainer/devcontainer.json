@@ -116,7 +116,14 @@
     }, // End of features block
 
     // --- Post Create Command: Runs after container creation and feature setup ---
-    // Used here to add shell aliases reliably after OhMyZsh is configured.
-    "postCreateCommand": "echo '\n# Custom Aliases (added via postCreateCommand)\nalias fd=\"flutter doctor\"\nalias frc=\"flutter run -d chrome\"\nalias frd=\"flutter run\"\nalias supas=\"supabase start\"\nalias supastop=\"supabase stop\"\n' >> ~/.zshrc"
+    // Configures Flutter to use the feature-installed Android SDK, accepts licenses,
+    // and adds shell aliases after OhMyZsh is set up.
+    // Ensures vscode user owns the SDK directory before Flutter commands run.
+    "postCreateCommand": {
+        "1_setSdkPermissions": "sudo chown -R vscode:vscode /opt/android-sdk",
+        "2_configureFlutterSdk": "flutter config --android-sdk /opt/android-sdk",
+        "3_acceptAndroidLicenses": "yes | flutter doctor --android-licenses",
+        "4_addShellAliases": "echo '\n# Custom Aliases (added via postCreateCommand)\nalias fd=\"flutter doctor\"\nalias frc=\"flutter run -d chrome\"\nalias frd=\"flutter run\"\nalias supas=\"supabase start\"\nalias supastop=\"supabase stop\"\n' >> ~/.zshrc"
+    }
 
 } // End of JSON

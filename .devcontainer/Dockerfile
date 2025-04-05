@@ -50,10 +50,6 @@ ENV PATH=${PATH}:${FLUTTER_HOME}/bin
 # Clone Flutter, configure it, precache, and set permissions
 # This RUN command executes before the final USER switch, potentially as root or buildkit user
 RUN git clone --depth 1 --branch ${FLUTTER_CHANNEL} https://github.com/flutter/flutter.git ${FLUTTER_HOME} \
-    # Configure Flutter to use the Android SDK installed by the feature via the ARG
-    && ${FLUTTER_HOME}/bin/flutter config --android-sdk "${ANDROID_SDK_ROOT_PATH}" \
-    # Accept Android licenses (needs Android SDK configured first)
-    && yes | ${FLUTTER_HOME}/bin/flutter doctor --android-licenses \
     # Disable Flutter analytics
     && ${FLUTTER_HOME}/bin/flutter config --no-analytics \
     # Enable Linux desktop builds (requires apt packages installed above)
@@ -66,8 +62,8 @@ RUN git clone --depth 1 --branch ${FLUTTER_CHANNEL} https://github.com/flutter/f
     && chown -R 1000:1000 ${FLUTTER_HOME} /home/vscode
 
 # --- Final Container User ---
-# Switch to the non-root 'vscode' user created by the common-utils feature
-USER vscode
+# The 'vscode' user is created by the common-utils feature.
+# The 'remoteUser' setting in devcontainer.json handles the final switch.
 
 # Optional: Set default working directory (often workspaceFolder is mounted here anyway)
 # WORKDIR /home/vscode
